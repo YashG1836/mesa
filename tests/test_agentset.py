@@ -709,6 +709,34 @@ def test_agentset_shuffle():
     assert not all(a1 == a2 for a1, a2 in zip(test_agents, agentset))
 
 
+def test_agentset_copy():
+    """Test AgentSet.copy and copy.copy on a standard AgentSet."""
+    model = Model()
+    test_agents = [AgentTest(model) for _ in range(5)]
+    agentset = AgentSet(test_agents, random=model.random)
+
+    for copied in (agentset.copy(), copy.copy(agentset)):
+        assert type(copied) is AgentSet
+        assert copied is not agentset
+        assert list(copied) == test_agents
+        assert copied.random is agentset.random
+
+        # the copy is independent of the original
+        copied.remove(test_agents[0])
+        assert test_agents[0] in agentset
+        assert len(agentset) == 5
+
+    # copies of views and of copies (see #4019)
+    assert len(model.agents.select().copy()) == 5
+    assert len(model.agents.copy().copy()) == 5
+
+    # an empty AgentSet can be copied without a warning
+    empty = AgentSet([], random=model.random)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert len(empty.copy()) == 0
+
+
 def test_agentset_groupby():
     """Test AgentSet.groupby."""
 

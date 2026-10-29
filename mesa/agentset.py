@@ -861,6 +861,14 @@ class AgentSet[A: Agent](AbstractAgentSet[A], Sequence[A]):
         """
         del self._agents[agent]
 
+    def copy(self) -> AgentSet[A]:
+        """Return a shallow copy of the AgentSet, sharing the same random number generator."""
+        return AgentSet(self._agents.keys(), self.random)
+
+    def __copy__(self):
+        """Support for copy.copy(). Returns a shallow copy of the AgentSet."""
+        return self.copy()
+
     def __getstate__(self):
         """Retrieve the state of the AgentSet for serialization.
 
